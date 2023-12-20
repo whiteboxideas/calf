@@ -13,24 +13,23 @@ export default class ReacTreePanel {
   private parser: Parser | undefined;
   private _disposables: vscode.Disposable[] = [];
 
-  public static createOrShow(extContext: vscode.ExtensionContext) {
-    const column = vscode.window.activeTextEditor
-      ? vscode.window.activeTextEditor.viewColumn
-      : undefined;
+  public static createOrShow(extContext: vscode.ExtensionContext,fileName:any) {
+    const columnToShowIn = vscode.ViewColumn.Beside;
 
-    // If we already have a panel, show it.
-    // Otherwise, create a new panel.
-    if (ReacTreePanel.currentPanel) {
-      ReacTreePanel.currentPanel._panel.reveal(column);
-    } else {
-      // ReactPanel.currentPanel = new ReactPanel(extensionPath, column || vscode.ViewColumn.One);
-      ReacTreePanel.currentPanel = new ReacTreePanel(
-        extContext,
-        vscode.ViewColumn.Two
-      );
+    if (!ReacTreePanel.currentPanel) {
+      
+      ReacTreePanel.currentPanel = new ReacTreePanel(extContext, columnToShowIn);
+    }
+
+    if (fileName && ReacTreePanel.currentPanel) {
+      ReacTreePanel.currentPanel.parseAndShowFile(fileName);
     }
   }
-
+  private parseAndShowFile(fileName: string) {
+    this.parser = new Parser(fileName);
+    this.parser.parse();
+    this.updateView();
+  }
   private constructor(
     extContext: vscode.ExtensionContext,
     column: vscode.ViewColumn
@@ -66,12 +65,11 @@ export default class ReacTreePanel {
     // Handle messages from the webview
     this._panel.webview.onDidReceiveMessage(
       async (msg: any) => {
+        console.log('msg',msg)
         switch (msg.type) {
           case 'onFile':
             if (!msg.value) break; //if doesnt work change to return
-            this.parser = new Parser(msg.value);
-            this.parser.parse();
-            this.updateView();
+            this.parseAndShowFile(msg.value); 
             break;
           case 'onViewFile':
             if (!msg.value) return;
@@ -89,6 +87,7 @@ export default class ReacTreePanel {
   }
 
   private async updateView() {
+    
     // Save current state of tree to workspace state:
     const tree = this.parser!.getTree();
     this._extContext.workspaceState.update('reacTree', tree);

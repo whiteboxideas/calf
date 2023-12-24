@@ -1,7 +1,15 @@
 import * as vscode from 'vscode';
 import ReacTreePanel from './panel';
+import { ReacTreeViewProvider } from './ReacTreeViewProvider';
+import { getNonce } from './getNonce';
 
 export function activate(extContext: vscode.ExtensionContext) {
+  
+
+	const provider = new ReacTreeViewProvider(extContext);
+	extContext.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(ReacTreeViewProvider.viewType,  provider));
+
   vscode.window.onDidChangeActiveTextEditor(editor => {
     if (editor) {
         // Get the filename of the focused file
@@ -21,7 +29,7 @@ export function activate(extContext: vscode.ExtensionContext) {
 
       if (fileName) {
         ReacTreePanel.createOrShow(extContext, fileName);
-      } else {
+		      } else {
         vscode.window.showInformationMessage('No active editor or file selected');
       }
     })

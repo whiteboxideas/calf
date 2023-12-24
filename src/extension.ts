@@ -14,6 +14,7 @@ export function activate(extContext: vscode.ExtensionContext) {
     if (editor) {
         // Get the filename of the focused file
         const fileName = editor.document.fileName;
+		console.log('extension 17 fileName',fileName)
         // Execute the 'reacTree.start' command with the fileName
         vscode.commands.executeCommand('reacTree.start', fileName);
     }
@@ -28,7 +29,9 @@ export function activate(extContext: vscode.ExtensionContext) {
       }
 
       if (fileName) {
+		console.log('extension 32 fileName',fileName)
         ReacTreePanel.createOrShow(extContext, fileName);
+		ReacTreeViewProvider.createOrShow(extContext, fileName);
 		      } else {
         vscode.window.showInformationMessage('No active editor or file selected');
       }

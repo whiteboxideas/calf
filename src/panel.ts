@@ -7,29 +7,13 @@ export default class ReacTreePanel {
 
   private static readonly viewType = 'reacTree';
 
-  private readonly _panel: vscode.WebviewPanel;
+  private   _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
   private readonly _extContext: vscode.ExtensionContext;
   private parser: Parser | undefined;
   private _disposables: vscode.Disposable[] = [];
 
-  public static createOrShow(extContext: vscode.ExtensionContext,fileName:any) {
-    const columnToShowIn = vscode.ViewColumn.Beside;
 
-    if (!ReacTreePanel.currentPanel) {
-      
-      ReacTreePanel.currentPanel = new ReacTreePanel(extContext, columnToShowIn);
-    }
-
-    if (fileName && ReacTreePanel.currentPanel) {
-      ReacTreePanel.currentPanel.parseAndShowFile(fileName);
-    }
-  }
-  private parseAndShowFile(fileName: string) {
-    this.parser = new Parser(fileName);
-    this.parser.parse();
-    this.updateView();
-  }
   private constructor(
     extContext: vscode.ExtensionContext,
     column: vscode.ViewColumn
@@ -39,18 +23,8 @@ export default class ReacTreePanel {
     // Not added - state preserver**
 
     // Create and show a new webview panel
-    this._panel = vscode.window.createWebviewPanel(
-      ReacTreePanel.viewType,
-      'ReacTree',
-      column,
-      {
-        // Enable javascript in the webview
-        enableScripts: true,
-        retainContextWhenHidden: true,
-        // And restric the webview to only loading content from our extension's `media` directory.
-        localResourceRoots: [this._extensionUri],
-      }
-    );
+    console.log('ReacTreePanel.constructor')
+    this.resolveWebViewPanel(column)
     
     // Set webview favicon
     this._panel.iconPath = vscode.Uri.joinPath(this._extensionUri, "src/media", "favicon.ico");
@@ -65,10 +39,11 @@ export default class ReacTreePanel {
     // Handle messages from the webview
     this._panel.webview.onDidReceiveMessage(
       async (msg: any) => {
-        console.log('msg',msg)
+        console.log('msg onDidReceiveMessage',msg)
         switch (msg.type) {
           case 'onFile':
             if (!msg.value) break; //if doesnt work change to return
+            console.log('msg.value',msg.value);
             this.parseAndShowFile(msg.value); 
             break;
           case 'onViewFile':
@@ -85,6 +60,41 @@ export default class ReacTreePanel {
       this._disposables
     );
   }
+
+  public static createOrShow(extContext: vscode.ExtensionContext,fileName:any) {
+    const columnToShowIn = vscode.ViewColumn.Beside;
+
+    if (!ReacTreePanel.currentPanel) {
+      
+      ReacTreePanel.currentPanel = new ReacTreePanel(extContext, columnToShowIn);
+    }
+
+    if (fileName && ReacTreePanel.currentPanel) {
+      ReacTreePanel.currentPanel.parseAndShowFile(fileName);
+    }
+  }
+  private resolveWebViewPanel(column: vscode.ViewColumn){
+    this._panel = vscode.window.createWebviewPanel(
+      ReacTreePanel.viewType,
+      'ReacTree',
+      column,
+      {
+        // Enable javascript in the webview
+        enableScripts: true,
+        retainContextWhenHidden: true,
+        // And restric the webview to only loading content from our extension's `media` directory.
+        localResourceRoots: [this._extensionUri],
+      }
+    );
+  }
+
+  private parseAndShowFile(fileName: string) {
+    console.log('92 parseAndShowFile',fileName)
+    this.parser = new Parser(fileName);
+    this.parser.parse();
+    this.updateView();
+  }
+
 
   private async updateView() {
     

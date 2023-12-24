@@ -23,7 +23,6 @@ export default class ReacTreePanel {
     // Not added - state preserver**
 
     // Create and show a new webview panel
-    console.log('ReacTreePanel.constructor')
     this.resolveWebViewPanel(column)
     
     // Set webview favicon
@@ -39,11 +38,9 @@ export default class ReacTreePanel {
     // Handle messages from the webview
     this._panel.webview.onDidReceiveMessage(
       async (msg: any) => {
-        console.log('msg onDidReceiveMessage',msg)
         switch (msg.type) {
           case 'onFile':
             if (!msg.value) break; //if doesnt work change to return
-            console.log('msg.value',msg.value);
             this.parseAndShowFile(msg.value); 
             break;
           case 'onViewFile':
@@ -89,7 +86,6 @@ export default class ReacTreePanel {
   }
 
   private parseAndShowFile(fileName: string) {
-    console.log('92 parseAndShowFile',fileName)
     this.parser = new Parser(fileName);
     this.parser.parse();
     this.updateView();
@@ -97,7 +93,6 @@ export default class ReacTreePanel {
 
 
   private async updateView() {
-    
     // Save current state of tree to workspace state:
     const tree = this.parser!.getTree();
     this._extContext.workspaceState.update('reacTree', tree);

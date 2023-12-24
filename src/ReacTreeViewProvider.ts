@@ -2,9 +2,6 @@ import * as vscode from 'vscode';
 import { getNonce } from './getNonce';
 import { Parser } from './parser';
 
-
-
-
 export class ReacTreeViewProvider implements vscode.WebviewViewProvider {
   public static currentPanel: ReacTreeViewProvider | undefined;
   
@@ -21,30 +18,12 @@ export class ReacTreeViewProvider implements vscode.WebviewViewProvider {
 
     this._extContext = extContext;
     this._extensionUri = extContext.extensionUri;
-
-    // this._panel.webview.onDidReceiveMessage(
-    //   async (msg: any) => {
-    //     console.log('provider onDidReceiveMessage',msg)
-    //     switch (msg.type) {
-    //       case 'onFile':
-    //         if (!msg.value) break; //if doesnt work change to return
-    //         this.parseAndShowFile(msg.value); 
-    //         break;
-    //       case 'onViewFile':
-    //         if (!msg.value) return;
-    //         const doc = await vscode.workspace.openTextDocument(msg.value);
-    //         const editor = await vscode.window.showTextDocument(doc, {
-    //           preserveFocus: false,
-    //           preview: false,
-    //         });
-    //         break;
-    //     }
-    //   },
-    //   null,
-    //   this._disposables
-    // );
+ 
 
   }
+public static init (extContext: vscode.ExtensionContext){
+  ReacTreeViewProvider.currentPanel = new ReacTreeViewProvider(extContext);
+}
 
   public static createOrShow(extContext: vscode.ExtensionContext,fileName:any) {
     
@@ -55,7 +34,6 @@ export class ReacTreeViewProvider implements vscode.WebviewViewProvider {
     }
 
     if (fileName && ReacTreeViewProvider.currentPanel) {
-      console.log('fileName',fileName)
       ReacTreeViewProvider.currentPanel.parseAndShowFile(fileName);
     }
   }
@@ -69,7 +47,6 @@ export class ReacTreeViewProvider implements vscode.WebviewViewProvider {
   ) {
     this._panel = webviewView;
     //log to console 
-    console.log('ReacTreeViewProvider.resolveWebviewView')
     webviewView.webview.options = {
       enableScripts: true,
       localResourceRoots: [this._extensionUri]
@@ -102,7 +79,6 @@ export class ReacTreeViewProvider implements vscode.WebviewViewProvider {
     if (!this._panel) {
       return;
     }
-
     const tree = this.parser!.getTree();
     this._extContext.workspaceState.update('reacTree', tree);
     this._panel.webview.postMessage({

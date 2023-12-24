@@ -1,20 +1,18 @@
 import * as vscode from 'vscode';
-import ReacTreePanel from './panel';
+// import ReacTreePanel from './panel';
 import { ReacTreeViewProvider } from './ReacTreeViewProvider';
 import { getNonce } from './getNonce';
 
 export function activate(extContext: vscode.ExtensionContext) {
   
-
-	const provider = new ReacTreeViewProvider(extContext);
+if(ReacTreeViewProvider.currentPanel === undefined){ReacTreeViewProvider.init(extContext)}	 
 	extContext.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(ReacTreeViewProvider.viewType,  provider));
+		vscode.window.registerWebviewViewProvider(ReacTreeViewProvider.viewType,  ReacTreeViewProvider.currentPanel ));
 
   vscode.window.onDidChangeActiveTextEditor(editor => {
     if (editor) {
         // Get the filename of the focused file
         const fileName = editor.document.fileName;
-		console.log('extension 17 fileName',fileName)
         // Execute the 'reacTree.start' command with the fileName
         vscode.commands.executeCommand('reacTree.start', fileName);
     }
@@ -29,8 +27,7 @@ export function activate(extContext: vscode.ExtensionContext) {
       }
 
       if (fileName) {
-		console.log('extension 32 fileName',fileName)
-        ReacTreePanel.createOrShow(extContext, fileName);
+        // ReacTreePanel.createOrShow(extContext, fileName);
 		ReacTreeViewProvider.createOrShow(extContext, fileName);
 		      } else {
         vscode.window.showInformationMessage('No active editor or file selected');

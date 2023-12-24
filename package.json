@@ -25,7 +25,36 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+		"viewsContainers": {
+            "panel": [
+                {
+                    "id": "myPanel",
+                    "title": "Colors",
+                    "icon": "src/media/icon.png"
+                }
+            ]
+        },
+		"views": {
+			"myPanel": [
+				{
+					"type": "webview",
+					"id": "reacTree",
+					"name": "Calico Colors"
+				}
+			]
+		},
     "commands": [
+      {
+				"command": "calicoColors.addColor",
+				"category": "Calico Colors",
+				"title": "Add Color2"
+			},
+			{
+				"command": "calicoColors.clearColors",
+				"category": "Calico Colors",
+				"title": "Clear Colors",
+				"icon": "$(clear-all)"
+			},
       {
         "command": "reacTree.start",
         "title": "ReacTree: Show Panel"
@@ -34,7 +63,16 @@
         "command": "reacTree.startStatusBar",
         "title": "ReacTree: Show StatusBar"
       }
-    ]
+    ],
+    "menus": {
+			"view/title": [
+				{
+					"command": "calicoColors.clearColors",
+					"group": "navigation",
+					"when": "view == calicoColors.colorsView"
+				}
+			]
+		}
   },
   "extensionPack": [
     "docsmsft.docs-markdown",

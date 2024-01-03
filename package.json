@@ -53,16 +53,7 @@
         "command": "calf.startStatusBar",
         "title": "Calf: Show StatusBar"
       }
-    ],
-    "menus": {
-			"view/title": [
-				{
-					"command": "calicoColors.clearColors",
-					"group": "navigation",
-					"when": "view == calicoColors.colorsView"
-				}
-			]
-		}
+    ] 
   },
   "extensionPack": [
     "docsmsft.docs-markdown",

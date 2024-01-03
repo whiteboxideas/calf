@@ -13,7 +13,7 @@ import ReactFlow, {
 import * as dagre from 'dagre';
 
 import 'reactflow/dist/style.css';
-import '../dagre.css';
+import '../dagre.css'; 
 
 const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {  
   const addNewTools = () => {
@@ -80,7 +80,8 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
 
   const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
     initialNodes,
-    initialEdges
+    initialEdges,
+    'LR'
   );
 
   useEffect(() => {
@@ -107,14 +108,16 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
   );
   
   const onLayout = useCallback(
-    (direction) => {
+    ( ) => {
+      console.log('layout',vertical);
+      const localDirection = vertical ? 'LR' : 'LR';
       setDisabled(!disabled);
       const { nodes: layoutedNodes, edges: layoutedEdges } =
-        getLayoutedElements(nodes, edges, direction);
+        getLayoutedElements(nodes, edges, localDirection);
       setNodes([...layoutedNodes]);
       setEdges([...layoutedEdges]);
     },
-    [nodes, edges]
+    [nodes, edges,vertical]
   );
 
   return (
@@ -127,22 +130,24 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           connectionLineType={ConnectionLineType.SmoothStep}
-          fitView
+          fitView={true}
+          zoomOnScroll={true}
         >
         <Controls style={{ borderRadius: '50px',}} /> 
         </ReactFlow>
         {
         vertical ?  
           <button type='button' className='customToolbarButton react-flow__controls-button react-flow__controls-interactive' onClick={() => {
-            onLayout('LR')
+            // onLayout('LR')
             setVertical(!vertical)
+            onLayout()
           }}>
             <SwapHorizRoundedIcon htmlColor='var(--vscode-foreground)' sx={{ fontSize: 35 }}  />
           </button>
           :
           <button type='button' className='customToolbarButton react-flow__controls-button react-flow__controls-interactive' onClick={() => {
            
-            onLayout('TB')
+            onLayout()
             setVertical(!vertical)
           }}>
             <SwapVertRoundedIcon htmlColor='var(--vscode-foreground)' sx={{ fontSize: 35 }}  />

@@ -2,10 +2,10 @@ import * as vscode from 'vscode';
 import { getNonce } from './getNonce';
 import { Parser } from './parser';
 
-export default class ReacTreePanel {
-  public static currentPanel: ReacTreePanel | undefined;
+export default class TreePanel {
+  public static currentPanel: TreePanel | undefined;
 
-  private static readonly viewType = 'reacTree';
+  private static readonly viewType = 'calf';
 
   private   _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
@@ -61,19 +61,19 @@ export default class ReacTreePanel {
   public static createOrShow(extContext: vscode.ExtensionContext,fileName:any) {
     const columnToShowIn = vscode.ViewColumn.Beside;
 
-    if (!ReacTreePanel.currentPanel) {
+    if (!TreePanel.currentPanel) {
       
-      ReacTreePanel.currentPanel = new ReacTreePanel(extContext, columnToShowIn);
+      TreePanel.currentPanel = new TreePanel(extContext, columnToShowIn);
     }
 
-    if (fileName && ReacTreePanel.currentPanel) {
-      ReacTreePanel.currentPanel.parseAndShowFile(fileName);
+    if (fileName && TreePanel.currentPanel) {
+      TreePanel.currentPanel.parseAndShowFile(fileName);
     }
   }
   private resolveWebViewPanel(column: vscode.ViewColumn){
     this._panel = vscode.window.createWebviewPanel(
-      ReacTreePanel.viewType,
-      'ReacTree',
+      TreePanel.viewType,
+      'Calf',
       column,
       {
         // Enable javascript in the webview
@@ -95,17 +95,17 @@ export default class ReacTreePanel {
   private async updateView() {
     // Save current state of tree to workspace state:
     const tree = this.parser!.getTree();
-    this._extContext.workspaceState.update('reacTree', tree);
+    this._extContext.workspaceState.update('calf', tree);
     // Send updated tree to webview
     this._panel.webview.postMessage({
       type: 'parsed-data',
       value: tree,
-      settings: await vscode.workspace.getConfiguration('reacTree'),
+      settings: await vscode.workspace.getConfiguration('calf'),
     });
   }
 
   public dispose() {
-    ReacTreePanel.currentPanel = undefined;
+    TreePanel.currentPanel = undefined;
     // Clean up our resources
     this._panel.dispose();
     while (this._disposables.length) {

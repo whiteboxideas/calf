@@ -9,6 +9,7 @@ import ClearIcon from '@mui/icons-material/Clear';
 // imports for the icons
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faDownload } from '@fortawesome/free-solid-svg-icons';
+import { LogLevel } from 'vscode';
 
 interface vscode {
   postMessage(message: any): void;
@@ -19,6 +20,7 @@ declare const vscode: vscode;
 const Navbar = ({ rootFile }: any) => {
   // onChange function that will send a message to the extension when the user selects a file
   const fileMessage = (e: any) => {
+    console.log('FILE MESSAGE', e.target.files[0].path)
     const filePath = e.target.files[0].path;
     // Reset event target value to null so the same file selection causes onChange event to trigger
     e.target.value = null;

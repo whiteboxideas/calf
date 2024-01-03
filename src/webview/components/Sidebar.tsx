@@ -56,7 +56,7 @@ const Sidebar = () => {
 
     // Post message to the extension whenever sapling is opened
     vscode.postMessage({
-      type: 'onReacTreeVisible',
+      type: 'onCalfVisible',
       value: null,
     });
 

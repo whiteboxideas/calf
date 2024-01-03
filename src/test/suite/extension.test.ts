@@ -9,22 +9,22 @@ import * as vscode from 'vscode';
 suite('Extension Test Suite', () => {
 	vscode.window.showInformationMessage('Start all tests.');
 
-	describe('reacTree loads correctly', () => {
-    let reacTree;
+	describe('calf loads correctly', () => {
+    let calf;
     before (() => {
-      reacTree = vscode.extensions.getExtension('ReacTreeDev.reactree');
+      calf = vscode.extensions.getExtension('ReacTreeDev.reactree');
     });
 
-    test('reacTree is registered as an extension', () => {
-      expect(reacTree).to.not.be.undefined;
+    test('calf is registered as an extension', () => {
+      expect(calf).to.not.be.undefined;
     });
 
-    test('reacTree extension is activated after VSCode startup', () => {
-      expect(reacTree.isActive).to.be.true;
+    test('calf extension is activated after VSCode startup', () => {
+      expect(calf.isActive).to.be.true;
     });
 
-    test('reacTree extension package.json exists', () => {
-      expect(reacTree.packageJSON).to.not.be.undefined;
+    test('calf extension package.json exists', () => {
+      expect(calf.packageJSON).to.not.be.undefined;
     });
   });
 

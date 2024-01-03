@@ -2,10 +2,10 @@ import * as vscode from 'vscode';
 import { getNonce } from './getNonce';
 import { Parser } from './parser';
 
-export class ReacTreeViewProvider implements vscode.WebviewViewProvider {
-  public static currentPanel: ReacTreeViewProvider | undefined;
+export class TreeViewProvider implements vscode.WebviewViewProvider {
+  public static currentPanel: TreeViewProvider | undefined;
   
-  public static readonly viewType = 'reacTree';
+  public static readonly viewType = 'calf';
 
   private _panel?: vscode.WebviewView;
   private _extensionUri: vscode.Uri;
@@ -22,19 +22,19 @@ export class ReacTreeViewProvider implements vscode.WebviewViewProvider {
 
   }
 public static init (extContext: vscode.ExtensionContext){
-  ReacTreeViewProvider.currentPanel = new ReacTreeViewProvider(extContext);
+  TreeViewProvider.currentPanel = new TreeViewProvider(extContext);
 }
 
   public static createOrShow(extContext: vscode.ExtensionContext,fileName:any) {
     
-    if (!ReacTreeViewProvider.currentPanel) {
+    if (!TreeViewProvider.currentPanel) {
       
-      ReacTreeViewProvider.currentPanel = new ReacTreeViewProvider(extContext);
+      TreeViewProvider.currentPanel = new TreeViewProvider(extContext);
       
     }
 
-    if (fileName && ReacTreeViewProvider.currentPanel) {
-      ReacTreeViewProvider.currentPanel.parseAndShowFile(fileName);
+    if (fileName && TreeViewProvider.currentPanel) {
+      TreeViewProvider.currentPanel.parseAndShowFile(fileName);
     }
   }
 
@@ -80,16 +80,16 @@ public static init (extContext: vscode.ExtensionContext){
       return;
     }
     const tree = this.parser!.getTree();
-    this._extContext.workspaceState.update('reacTree', tree);
+    this._extContext.workspaceState.update('calf', tree);
     this._panel.webview.postMessage({
       type: 'parsed-data',
       value: tree,
-      settings: await vscode.workspace.getConfiguration('reacTree'),
+      settings: await vscode.workspace.getConfiguration('calf'),
     });
   }
 
   public dispose() {
-    ReacTreeViewProvider.currentPanel = undefined;
+    TreeViewProvider.currentPanel = undefined;
     // Clean up our resources
      
     while (this._disposables.length) {

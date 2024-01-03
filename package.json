@@ -1,10 +1,10 @@
 {
-  "name": "reactree",
-  "displayName": "ReacTree",
-  "description": "React hierarchy tree visualizer and navigation tool",
+  "name": "calf",
+  "displayName": "Calf",
+  "description": "A new type of programming ",
   "version": "1.0.7",
   "icon": "icon.png",
-  "publisher": "ReacTreeDev",
+  "publisher": "WhiteBoxIdeas",
   "preview": false,
   "engines": {
     "vscode": "^1.74.3"
@@ -29,7 +29,7 @@
             "panel": [
                 {
                     "id": "myPanel",
-                    "title": "Colors",
+                    "title": "Calf",
                     "icon": "src/media/icon.png"
                 }
             ]
@@ -38,30 +38,20 @@
 			"myPanel": [
 				{
 					"type": "webview",
-					"id": "reacTree",
-					"name": "Calico Colors"
+					"id": "calf",
+					"name": "Calf Panel"
 				}
 			]
 		},
     "commands": [
+      
       {
-				"command": "calicoColors.addColor",
-				"category": "Calico Colors",
-				"title": "Add Color2"
-			},
-			{
-				"command": "calicoColors.clearColors",
-				"category": "Calico Colors",
-				"title": "Clear Colors",
-				"icon": "$(clear-all)"
-			},
-      {
-        "command": "reacTree.start",
-        "title": "ReacTree: Show Panel"
+        "command": "calf.start",
+        "title": "Calf: Show Panel"
       },
       {
-        "command": "reacTree.startStatusBar",
-        "title": "ReacTree: Show StatusBar"
+        "command": "calf.startStatusBar",
+        "title": "Calf: Show StatusBar"
       }
     ],
     "menus": {

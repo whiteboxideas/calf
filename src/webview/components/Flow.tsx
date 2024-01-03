@@ -31,7 +31,7 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
     toolbar[0].appendChild(extraButton2);
   };
   const [showAllProps, setShowAllProps]: [boolean, Function] = useState(false);
-  const [vertical, setVertical] = useState(true);
+  const [vertical, setVertical] = useState(false);
 
   useEffect(() => {
     setTimeout(addNewTools, 5);
@@ -141,6 +141,7 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
           </button>
           :
           <button type='button' className='customToolbarButton react-flow__controls-button react-flow__controls-interactive' onClick={() => {
+           
             onLayout('TB')
             setVertical(!vertical)
           }}>

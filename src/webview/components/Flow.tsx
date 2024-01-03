@@ -130,10 +130,12 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}
           connectionLineType={ConnectionLineType.SmoothStep}
-          fitView={true}
-          zoomOnScroll={true}
+       maxZoom={0.7}
+      fitView={true}
+          zoomOnScroll={true} 
         >
         <Controls style={{ borderRadius: '50px',}} /> 
+        
         </ReactFlow>
         {
         vertical ?  

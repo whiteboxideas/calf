@@ -11,6 +11,7 @@ import {Navbar} from './Navbar';
 
 import CIcon from "@coreui/icons-react";
 import { cibRedux } from "@coreui/icons";
+import { LogLevel } from "vscode";
 
 
 interface vscode {
@@ -36,9 +37,11 @@ export const Sidebar = () => {
     // Event Listener for 'message' from the extension
     window.addEventListener('message', (event) => {
       const message = event.data;
+      console.log('sidebar.tsx 42 message', message)
       switch (message.type) {
         // Listener to receive the tree data, update navbar and tree view
         case 'parsed-data': {
+          console.log('sidebar.tsx 45 parsed-data', message.value)
           let data = [];
           data.push(message.value);
           setRootFile(message.value.fileName);
@@ -48,6 +51,7 @@ export const Sidebar = () => {
         }
         // Listener to receive the user's settings
         case 'settings-data': {
+          console.log('sidebar.tsx 52 settings-data', message.value)
           setSettings(message.value);
           break;
         }
@@ -92,6 +96,7 @@ export const Sidebar = () => {
   const propsObj: any = {};
 
   const handleProps = (id) => {
+    console.log('id', id)
     const propsDiv = document.getElementById(id);
     const styles = window.getComputedStyle(propsDiv);
     const display = styles.getPropertyValue('display');
@@ -118,7 +123,6 @@ export const Sidebar = () => {
     if (!tree) {
       return;
     }
-
     tree.forEach((item: any) => {
       if (Object.keys(item.props).length > 0) nodeIDs.push(item.id);
       const node = {
@@ -185,6 +189,8 @@ export const Sidebar = () => {
                       <InfoIcon data-property={id.toString()} style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() => handleProps(item.id)}/>
                     )}
                     <TextSnippetIcon style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() => viewFile(item.filePath)}/>
+                    <InfoIcon data-property={id.toString()} style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() =>  {console.log('test')}}/>
+                 
                 </div>
                 <div className="nodeIndicators">
                   {item.reduxConnect && (
@@ -198,12 +204,13 @@ export const Sidebar = () => {
         onClick : () => handleProps(item.fileName),
         position: { x: 0, y: 0 },
         type: item.depth === 0 ? 'input' : '',
+        // hidden: item.depth === 1 ||item.depth === 0?  false : true,
         style: {
-          backgroundColor: "var(--vscode-dropdown-background)",
+          backgroundColor:  item.depth === 1 ||item.depth === 0 ? 'rgba(0, 255, 0, 0.25)':"var(--vscode-dropdown-background)",
           borderRadius: "15px",
           width: '265px',
           boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-          border: 'none', 
+          border: item.children.length===0? 'none' : '1px solid red',
           padding: '10px 10px 3px 10px'
         },
       };

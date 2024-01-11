@@ -49,7 +49,6 @@ export const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
     edges: any[],
     direction = 'TB'
   ) => {
-    console.log('nodes before layout', nodes);
     const isHorizontal = direction === 'LR';
     dagreGraph.setGraph({ rankdir: direction });
 
@@ -110,7 +109,6 @@ export const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
   
   const onLayout = useCallback(
     ( ) => {
-      console.log('layout',vertical);
       const localDirection = vertical ? 'LR' : 'LR';
       setDisabled(!disabled);
       const { nodes: layoutedNodes, edges: layoutedEdges } =
@@ -122,8 +120,6 @@ export const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
   );
 
   const onNodeClickToggleCollapse = (event: any, node: any) => {
-    console.log('node', node );
-    console.log('nodes', nodes );
     // if (node.type === 'input') {
     //   return;
     // }

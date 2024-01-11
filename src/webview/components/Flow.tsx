@@ -15,6 +15,8 @@ import * as dagre from 'dagre';
 
 import 'reactflow/dist/style.css';
 import '../dagre.css'; 
+import { LayoutSwitchButton } from './LayoutSwitchButton';
+import { ShowAllPropsButton } from './ShowAllPropsButton';
 
 export const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {  
   const addNewTools = () => {
@@ -158,40 +160,8 @@ export const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
           />
           <Controls style={{ borderRadius: '50px', position: 'absolute', right: 10, top: 'calc(50vh + 10px)' }} />
         </ReactFlow>
-        {
-        vertical ?   
-          <button type='button' className='customToolbarButton react-flow__controls-button react-flow__controls-interactive' onClick={() => {
-            // onLayout('LR')
-            setVertical(!vertical)
-            onLayout()
-          }}>
-            <SwapHorizRoundedIcon htmlColor='var(--vscode-foreground)' sx={{ fontSize: 35 }}  />
-          </button>
-          :
-          <button type='button' className='customToolbarButton react-flow__controls-button react-flow__controls-interactive' onClick={() => {
-           
-            onLayout()
-            setVertical(!vertical)
-          }}>
-            <SwapVertRoundedIcon htmlColor='var(--vscode-foreground)' sx={{ fontSize: 35 }}  />
-          </button>
-        }
-        {
-          showAllProps ? 
-            <button type='button' className='customToolbarButton2 customToolbarButton react-flow__controls-button react-flow__controls-interactive' onClick={() => {
-              handleAllProps('none');
-              setShowAllProps(!showAllProps);
-            }}>
-              <PIcon htmlColor='var(--vscode-settings-focusedRowBorder)' sx={{ fontSize: 25 }} />
-            </button>
-          :
-          <button type='button' className='customToolbarButton2 customToolbarButton react-flow__controls-button react-flow__controls-interactive' onClick={() => {
-            handleAllProps('block');
-            setShowAllProps(!showAllProps);
-          }}>
-              <PIcon color='disabled' sx={{ fontSize: 25 }}  />
-            </button>
-        }
+         <LayoutSwitchButton vertical={vertical} onLayout={onLayout} setVertical={setVertical} />
+         <ShowAllPropsButton showAllProps={showAllProps} handleAllProps={handleAllProps} setShowAllProps={setShowAllProps} />
       </div>
     </div>
   );

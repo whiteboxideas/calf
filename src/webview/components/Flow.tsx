@@ -1,7 +1,4 @@
 import * as React from 'react';
-import SwapVertRoundedIcon from '@mui/icons-material/SwapVertRounded';
-import SwapHorizRoundedIcon from '@mui/icons-material/SwapHorizRounded';
-import PIcon from '@mui/icons-material/LocalParking';
 import { useCallback, useEffect, useState } from 'react';
 import ReactFlow, {
   useNodesState,
@@ -144,7 +141,7 @@ export const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
           onNodeClick={onNodeClickToggleCollapse}
           onConnect={onConnect}
           connectionLineType={ConnectionLineType.SmoothStep}
-          maxZoom={0.7}
+          maxZoom={0.8}
           fitView={true}
           zoomOnScroll={true}
         >
@@ -158,10 +155,10 @@ export const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
               }
             }}
           />
-          <Controls style={{ borderRadius: '50px', position: 'absolute', right: 10, top: 'calc(50vh + 10px)' }} />
+          <Controls  />
         </ReactFlow>
-         <LayoutSwitchButton vertical={vertical} onLayout={onLayout} setVertical={setVertical} />
-         <ShowAllPropsButton showAllProps={showAllProps} handleAllProps={handleAllProps} setShowAllProps={setShowAllProps} />
+         {/* <LayoutSwitchButton vertical={vertical} onLayout={onLayout} setVertical={setVertical} />
+         <ShowAllPropsButton showAllProps={showAllProps} handleAllProps={handleAllProps} setShowAllProps={setShowAllProps} /> */}
       </div>
     </div>
   );

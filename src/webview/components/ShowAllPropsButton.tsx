@@ -1,7 +1,7 @@
 // ShowAllPropsButton.tsx
-import React from 'react';
-import PIcon from '@mui/icons-material/P';
+import * as  React from 'react';
 
+import PIcon from '@mui/icons-material/LocalParking';
 interface ShowAllPropsButtonProps {
     showAllProps: boolean;
     handleAllProps: (value: string) => void;

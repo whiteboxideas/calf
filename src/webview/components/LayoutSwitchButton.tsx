@@ -1,8 +1,8 @@
 // LayoutSwitchButton.tsx
-import React from 'react';
+import * as React from 'react';
 import SwapHorizRoundedIcon from '@mui/icons-material/SwapHorizRounded';
 import SwapVertRoundedIcon from '@mui/icons-material/SwapVertRounded';
-
+ 
 interface LayoutSwitchButtonProps {
     vertical: boolean;
     onLayout: () => void;

@@ -25,7 +25,7 @@ interface SidebarProps {
   viewData: any;
 }
 
-const Sidebar = () => {
+export const Sidebar = () => {
   // state variables for the incomimg treeData, parsed viewData, user's settings, and the root file name
   const [treeData, setTreeData]: any = useState();
   const [settings, setSettings]: [{ [key: string]: boolean }, Function] = useState();
@@ -290,4 +290,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+  

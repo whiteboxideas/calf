@@ -6,7 +6,7 @@ import ReactFlow, {
   addEdge,
   ConnectionLineType,
   Controls,
-  MiniMap,
+    MiniMap,
 } from 'reactflow';
 import * as dagre from 'dagre';
 
@@ -148,7 +148,7 @@ export const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
           <MiniMap 
             nodeColor={(node) => {
               switch (node.type) {
-                case 'input': return '#FCD9D9';
+                case 'input': return '#ACD9D9';
                 case 'default': return 'blue';
                 case 'output': return 'green';
                 default: return '#eee';
@@ -156,7 +156,7 @@ export const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
             }}
           />
           <Controls  />
-        </ReactFlow>
+                </ReactFlow>
          {/* <LayoutSwitchButton vertical={vertical} onLayout={onLayout} setVertical={setVertical} />
          <ShowAllPropsButton showAllProps={showAllProps} handleAllProps={handleAllProps} setShowAllProps={setShowAllProps} /> */}
       </div>

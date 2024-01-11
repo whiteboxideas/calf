@@ -10,16 +10,11 @@ import {Flow} from './Flow';
 import {Navbar} from './Navbar';
 
 import CIcon from "@coreui/icons-react";
-import { cibRedux } from "@coreui/icons";
-import { LogLevel } from "vscode";
+import { cibRedux } from "@coreui/icons"; 
+import { viewFile, postMessage } from "./sidebar-parts/vscodeUtils";
+import { useMessageHandler } from "./sidebar-parts/useMessageHandler";
 
-
-interface vscode {
-  postMessage(message: any): void;
-}
-// declare function acquireVsCodeApi(): vscode;
-declare const vscode: vscode;
-
+ 
 interface SidebarProps {
   initialNodes: any;
   initialEdges: Edge<any>[];
@@ -33,54 +28,9 @@ export const Sidebar = () => {
   const [rootFile, setRootFile]: [string | undefined, Function] = useState();
 
   let viewData: any;
-  useEffect(() => {
-    // Event Listener for 'message' from the extension
-    window.addEventListener('message', (event) => {
-      const message = event.data;
-      console.log('sidebar.tsx 42 message', message)
-      switch (message.type) {
-        // Listener to receive the tree data, update navbar and tree view
-        case 'parsed-data': {
-          console.log('sidebar.tsx 45 parsed-data', message.value)
-          let data = [];
-          data.push(message.value);
-          setRootFile(message.value.fileName);
-          setSettings(message.settings);
-          setTreeData(data);
-          break;
-        }
-        // Listener to receive the user's settings
-        case 'settings-data': {
-          console.log('sidebar.tsx 52 settings-data', message.value)
-          setSettings(message.value);
-          break;
-        }
-      }
-    });
+  useMessageHandler(setRootFile, setSettings, setTreeData);
 
-    // Post message to the extension whenever sapling is opened
-    vscode.postMessage({
-      type: 'onCalfVisible',
-      value: null,
-    });
-
-    // Post message to the extension for the user's settings whenever sapling is opened
-    vscode.postMessage({
-      type: 'onSettingsAcquire',
-      value: null,
-    });
-  }, []);
-
-  const viewFile = (file: any) => {
-    // Edge case to verify that there is in fact a file path for the current node
-    if (file) {
-      vscode.postMessage({
-        type: 'onViewFile',
-        value: file,
-      });
-    }
-  };
-
+ 
   // Separate useEffect that gets triggered when the treeData and settings state variables get updated
   useEffect(() => {
     if (treeData && settings) {
@@ -110,14 +60,7 @@ export const Sidebar = () => {
       propsDiv.style.display = displayValue
     }
   }
-
-  const sendFilePath = (item: any) => {
-    vscode.postMessage({
-      type: 'onViewFileContent',
-      value: item,
-    });
-  };
-
+ 
 
   const getNodes = (tree: any) => {
     if (!tree) {

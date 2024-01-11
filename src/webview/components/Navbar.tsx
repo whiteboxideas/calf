@@ -17,7 +17,7 @@ interface vscode {
 // declare function acquireVsCodeApi(): vscode;
 declare const vscode: vscode;
 
-const Navbar = ({ rootFile }: any) => {
+export const Navbar = ({ rootFile }: any) => {
   // onChange function that will send a message to the extension when the user selects a file
   const fileMessage = (e: any) => {
     console.log('FILE MESSAGE', e.target.files[0].path)
@@ -48,5 +48,4 @@ const Navbar = ({ rootFile }: any) => {
     </div>
   );
 };
-
-export default Navbar;
+ 

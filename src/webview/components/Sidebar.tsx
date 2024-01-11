@@ -6,8 +6,8 @@ import TextSnippetIcon from '@mui/icons-material/TextSnippet';
 import CloseFullscreenIcon from '@mui/icons-material/CloseFullscreen';
 import InfoIcon from '@mui/icons-material/Info';
 
-import Flow from './Flow';
-import Navbar from './Navbar';
+import {Flow} from './Flow';
+import {Navbar} from './Navbar';
 
 import CIcon from "@coreui/icons-react";
 import { cibRedux } from "@coreui/icons";

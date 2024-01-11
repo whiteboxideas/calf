@@ -16,7 +16,7 @@ import * as dagre from 'dagre';
 import 'reactflow/dist/style.css';
 import '../dagre.css'; 
 
-const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {  
+export const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {  
   const addNewTools = () => {
     const extraButton1 = document.createElement('button');
     const extraButton2 = document.createElement('button');
@@ -149,7 +149,7 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
           <MiniMap 
             nodeColor={(node) => {
               switch (node.type) {
-                case 'input': return 'red';
+                case 'input': return '#FCD9D9';
                 case 'default': return 'blue';
                 case 'output': return 'green';
                 default: return '#eee';
@@ -159,7 +159,7 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
           <Controls style={{ borderRadius: '50px', position: 'absolute', right: 10, top: 'calc(50vh + 10px)' }} />
         </ReactFlow>
         {
-        vertical ?  
+        vertical ?   
           <button type='button' className='customToolbarButton react-flow__controls-button react-flow__controls-interactive' onClick={() => {
             // onLayout('LR')
             setVertical(!vertical)
@@ -197,4 +197,4 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
   );
 };
 
-export default Flow;
+ 

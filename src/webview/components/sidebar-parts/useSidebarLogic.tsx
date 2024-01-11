@@ -59,107 +59,7 @@ export const useSidebarLogic = () => {
    
    
   
-    const getNodes = (tree: any) => {
-      if (!tree) {
-        return;
-      }
-      tree.forEach((item: any) => {
-        if (Object.keys(item.props).length > 0) nodeIDs.push(item.id);
-        const node = {
-          id: (++id).toString(),
-          data: {
-            // if the item has props, show them on each div
-            label: (
-              // <Badge badgeContent={item.count} color="primary">
-              <div className="nodeData">
-                {/* for rendering modal to show live render of component */}
-                  {item.count > 1 && (
-                    <Badge badgeContent={item.count}  sx={{
-                      "& .MuiBadge-badge": {
-                        color: "var(--vscode-button-foreground)",
-                        backgroundColor: "var(--vscode-settings-focusedRowBorder)"
-                      }
-                    }}>
-                    </Badge>
-                  )}
-                <p className='nodeTitle'
-                  style={{
-                    fontFamily: 'var(--vscode-font-family)',
-                    fontStyle: 'normal',
-                    fontWeight: 700,
-                    paddingBottom: '6px',
-                    margin: "8px 0px 2px 0px",
-                    textAlign: "center",
-                    color: 'var(--vscode-foreground)',
-                    fontSize: '22px',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    borderBottom: "2px solid var(--vscode-settings-focusedRowBorder)"
-  
-                  }}
-                >
-                  {item.fileName}
-                </p>
-                {Object.keys(item.props).length > 0 &&
-                  (
-                    <>
-                      <div id={item.id} 
-                        style={{
-                          display: "none",
-                          columnWidth: '112px',
-                          fontSize: '11pt',
-                          color: 'var(--vscode-foreground)',
-                          borderBottom: "2px solid var(--vscode-settings-focusedRowBorder)",
-                          padding: '4px 0px 6px 5px',
-                          wordBreak: 'break-all'
-                        }}
-                      >
-                        {Object.keys(item.props).map((prop: any, idx: number) => (
-                          <div key={idx} style={{display: 'flex' }}>
-                            &#8226;{prop}
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                <div style={{justifyContent: 'space-between', display: 'flex', margin: '5px 0px'}}>
-                  <div className="nodeToolbar">
-                    {Object.keys(item.props).length > 0 && (
-                        <InfoIcon data-property={id.toString()} style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() => handleProps(item.id)}/>
-                      )}
-                      <TextSnippetIcon style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() => viewFile(item.filePath)}/>
-                      <InfoIcon data-property={id.toString()} style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() =>  {console.log('test')}}/>
-                   
-                  </div>
-                  <div className="nodeIndicators">
-                    {item.reduxConnect && (
-                      <CIcon icon={cibRedux} width={12} height={12}/>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ),
-          },
-          onClick : () => handleProps(item.fileName),
-          position: { x: 0, y: 0 },
-          type: item.depth === 0 ? 'input' : '',
-          // hidden: item.depth === 1 ||item.depth === 0?  false : true,
-          style: {
-            backgroundColor:  item.depth === 1 ||item.depth === 0 ? 'rgba(0, 255, 0, 0.25)':"var(--vscode-dropdown-background)",
-            borderRadius: "15px",
-            width: '265px',
-            boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
-            border: item.children.length===0? 'none' : '1px solid red',
-            padding: '10px 10px 3px 10px'
-          },
-        };
-        initialNodes.push(node);
-        if (item.children) {
-          getNodes(item.children); 
-        }
-      });
-    };
+    
   
     //initialEdges test
     let ide = 0;
@@ -224,9 +124,110 @@ export const useSidebarLogic = () => {
       traverse(treeParsed);
       // Update the vewData state
       viewData = ([treeParsed])
-      getNodes(viewData);
+      getNodes(viewData, initialNodes, nodeIDs,id, handleProps);
       makeEdges(viewData);
     };
   
     return {rootFile,initialNodes, initialEdges, nodeIDs,handleAllProps}
   }
+  const getNodes = (tree: any, initialNodes: Node[], nodeIDs: string[],id:any, handleProps: (id: string) => void) => {
+    if (!tree) {
+      return;
+    }
+    tree.forEach((item: any) => {
+      if (Object.keys(item.props).length > 0) nodeIDs.push(item.id);
+      const node = {
+        id: (++id).toString(),
+        data: {
+          // if the item has props, show them on each div
+          label: (
+            // <Badge badgeContent={item.count} color="primary">
+            <div className="nodeData">
+              {/* for rendering modal to show live render of component */}
+                {item.count > 1 && (
+                  <Badge badgeContent={item.count}  sx={{
+                    "& .MuiBadge-badge": {
+                      color: "var(--vscode-button-foreground)",
+                      backgroundColor: "var(--vscode-settings-focusedRowBorder)"
+                    }
+                  }}>
+                  </Badge>
+                )}
+              <p className='nodeTitle'
+                style={{
+                  fontFamily: 'var(--vscode-font-family)',
+                  fontStyle: 'normal',
+                  fontWeight: 700,
+                  paddingBottom: '6px',
+                  margin: "8px 0px 2px 0px",
+                  textAlign: "center",
+                  color: 'var(--vscode-foreground)',
+                  fontSize: '22px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  borderBottom: "2px solid var(--vscode-settings-focusedRowBorder)"
+
+                }}
+              >
+                {item.fileName}
+              </p>
+              {Object.keys(item.props).length > 0 &&
+                (
+                  <>
+                    <div id={item.id} 
+                      style={{
+                        display: "none",
+                        columnWidth: '112px',
+                        fontSize: '11pt',
+                        color: 'var(--vscode-foreground)',
+                        borderBottom: "2px solid var(--vscode-settings-focusedRowBorder)",
+                        padding: '4px 0px 6px 5px',
+                        wordBreak: 'break-all'
+                      }}
+                    >
+                      {Object.keys(item.props).map((prop: any, idx: number) => (
+                        <div key={idx} style={{display: 'flex' }}>
+                          &#8226;{prop}
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              <div style={{justifyContent: 'space-between', display: 'flex', margin: '5px 0px'}}>
+                <div className="nodeToolbar">
+                  {Object.keys(item.props).length > 0 && (
+                      <InfoIcon data-property={id.toString()} style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() => handleProps(item.id)}/>
+                    )}
+                    <TextSnippetIcon style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() => viewFile(item.filePath)}/>
+                    <InfoIcon data-property={id.toString()} style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() =>  {console.log('test')}}/>
+                 
+                </div>
+                <div className="nodeIndicators">
+                  {item.reduxConnect && (
+                    <CIcon icon={cibRedux} width={12} height={12}/>
+                  )}
+                </div>
+              </div>
+            </div>
+          ),
+        },
+        onClick : () => handleProps(item.fileName),
+        position: { x: 0, y: 0 },
+        type: item.depth === 0 ? 'input' : '',
+        // hidden: item.depth === 1 ||item.depth === 0?  false : true,
+        style: {
+          backgroundColor:  item.depth === 1 ||item.depth === 0 ? 'rgba(0, 255, 0, 0.25)':"var(--vscode-dropdown-background)",
+          borderRadius: "15px",
+          width: '265px',
+          boxShadow: '0px 4px 4px rgba(0, 0, 0, 0.25)',
+          border: item.children.length===0? 'none' : '1px solid red',
+          padding: '10px 10px 3px 10px'
+        },
+      };
+      initialNodes.push(node);
+      if (item.children) { 
+        getNodes(item.children, initialNodes, nodeIDs,id, handleProps)
+      }
+    });
+  };

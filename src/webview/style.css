@@ -445,7 +445,7 @@ div.react-flow__panel.react-flow__controls.bottom.left{
 .customToolbarButton {
   position: absolute;
   display: flex;
-  bottom: 42px;
+  bottom: 192px;
   right: 50px;
 }
 .customToolbarButton svg{

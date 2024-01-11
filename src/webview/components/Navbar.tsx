@@ -31,8 +31,7 @@ const Navbar = ({ rootFile }: any) => {
       });
     }
   };
-
-  console.log('ROOT', rootFile)
+ 
 
   // Render section
   return (

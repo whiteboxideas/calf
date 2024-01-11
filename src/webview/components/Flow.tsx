@@ -9,6 +9,7 @@ import ReactFlow, {
   addEdge,
   ConnectionLineType,
   Controls,
+  MiniMap,
 } from 'reactflow';
 import * as dagre from 'dagre';
 
@@ -33,7 +34,7 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
   const [showAllProps, setShowAllProps]: [boolean, Function] = useState(false);
   const [vertical, setVertical] = useState(false);
 
-  useEffect(() => {
+  useEffect(() => { 
     setTimeout(addNewTools, 5);
   }, []);
   
@@ -43,12 +44,13 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
   const nodeWidth = 250;
   const nodeHeight = 120;
   const [disabled, setDisabled]: any = useState(false);
-
+//this is the function that does the layout of the graph based on the direction of the graph
   const getLayoutedElements = (
     nodes: any[],
     edges: any[],
     direction = 'TB'
   ) => {
+    console.log('nodes before layout', nodes);
     const isHorizontal = direction === 'LR';
     dagreGraph.setGraph({ rankdir: direction });
 
@@ -120,6 +122,15 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
     [nodes, edges,vertical]
   );
 
+  const onNodeClickToggleCollapse = (event: any, node: any) => {
+    console.log('node', node );
+    console.log('nodes', nodes );
+    // if (node.type === 'input') {
+    //   return;
+    // }
+    // node.isHidden = !node.isHidden;
+    // setNodes([...nodes]);
+  }
   return (
     <div className="tree_view" >
       <div className="layoutflow">
@@ -128,14 +139,24 @@ const Flow = ({ initialNodes, initialEdges, handleAllProps}: any) => {
           edges={edges}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
+          onNodeClick={onNodeClickToggleCollapse}
           onConnect={onConnect}
           connectionLineType={ConnectionLineType.SmoothStep}
-       maxZoom={0.7}
-      fitView={true}
-          zoomOnScroll={true} 
+          maxZoom={0.7}
+          fitView={true}
+          zoomOnScroll={true}
         >
-        <Controls style={{ borderRadius: '50px',}} /> 
-        
+          <MiniMap 
+            nodeColor={(node) => {
+              switch (node.type) {
+                case 'input': return 'red';
+                case 'default': return 'blue';
+                case 'output': return 'green';
+                default: return '#eee';
+              }
+            }}
+          />
+          <Controls style={{ borderRadius: '50px', position: 'absolute', right: 10, top: 'calc(50vh + 10px)' }} />
         </ReactFlow>
         {
         vertical ?  

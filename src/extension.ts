@@ -32,7 +32,7 @@ if(TreeViewProvider.currentPanel === undefined){TreeViewProvider.init(extContext
       }
     })
   );
-  
+  //forcing a revert
   // Create calf status bar button
   const item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right);
   item.command = 'calf.start';

@@ -64,7 +64,7 @@ export const useSidebarLogic = () => {
         return;
       }
       tree.forEach((item: any) => {
-        if (Object.keys(item.props).length > 0) nodeIDs.push(item.id);
+        if ( item.mainExports.length > 0) nodeIDs.push(item.id);
         const node = {
           id: (++id).toString(),
           data: {
@@ -101,7 +101,7 @@ export const useSidebarLogic = () => {
                 >
                   {item.fileName}
                 </p>
-                {Object.keys(item.props).length > 0 &&
+                {/* {Object.keys(item.props).length > 0 &&
                   (
                     <>
                       <div id={item.id} 
@@ -122,10 +122,34 @@ export const useSidebarLogic = () => {
                         ))}
                       </div>
                     </>
+                  )} */}
+                   { item.mainExports.length > 0 &&
+                  (
+                    <>
+                      <div id={item.id } 
+                        style={{
+                          display: "none",
+                          columnWidth: '112px',
+                          fontSize: '11pt',
+                          color: 'var(--vscode-foreground)',
+                          borderBottom: "2px solid var(--vscode-settings-focusedRowBorder)",
+                          padding: '4px 0px 6px 5px',
+                          wordBreak: 'break-all'
+                        }}
+                      >
+                        Exports:
+                        {item.mainExports.map(
+                          ( {name,start,isDefault}) => (
+                          <div key={name+start} style={{display: 'flex',color:isDefault&&'black' }}>
+                            &#8226;{name}
+                          </div>
+                        ))}
+                      </div>
+                    </>
                   )}
                 <div style={{justifyContent: 'space-between', display: 'flex', margin: '5px 0px'}}>
                   <div className="nodeToolbar">
-                    {Object.keys(item.props).length > 0 && (
+                    { item.mainExports.length > 0 && (
                         <InfoIcon data-property={id.toString()} style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() => handleProps(item.id)}/>
                       )}
                       <TextSnippetIcon style={{ cursor: "pointer", padding: '0px 3px' }} htmlColor={'var(--vscode-foreground)'} sx={{ fontSize: 19 }} onClick={() => viewFile(item.filePath)}/>

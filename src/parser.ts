@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { getNonce } from './getNonce';
 import { Tree } from './types/Tree';
 import { ImportObj } from './types/ImportObj';
-import { File ,isVariableDeclaration,isIdentifier,ExportNamedDeclaration}  from '@babel/types';
+import { File ,isVariableDeclaration,isIdentifier,ExportNamedDeclaration,ExportDefaultDeclaration,ImportDeclaration}  from '@babel/types';
 import * as vscode from 'vscode';
 import { NodePath, traverse } from '@babel/core';
 
@@ -58,6 +58,7 @@ export class Parser {
       parentList: [],
       props: {},
       mainExports: [],
+      fileImports: [],
       error: '',
     };
 
@@ -193,7 +194,9 @@ export class Parser {
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
     } 
-    componentTree.mainExports =  extractExportsFromAST(ast);;
+     const { fileExports, fileImports }= extractExportsAndImportsFromAST(ast);
+      componentTree.mainExports =fileExports;
+      componentTree.fileImports =fileImports;
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
 
@@ -374,6 +377,7 @@ export class Parser {
         parentList: [parent.filePath].concat(parent.parentList),
         error: '',
         mainExports: [],
+        fileImports: [],
         parents: [], // Add the missing parents property
       };
     }
@@ -444,8 +448,9 @@ const getReferencesVS = async (uri: vscode.Uri, position: vscode.Position): Prom
   return filterReferencesUnique(references,uri.fsPath);
 };
 
-const extractExportsFromAST = (ast: babelParser.ParseResult<File>) => {
+const extractExportsAndImportsFromAST = (ast: babelParser.ParseResult<File>) => {
   let fileExports = [];
+  let fileImports = [];
 
   traverse(ast, {
     ExportNamedDeclaration(path: NodePath<ExportNamedDeclaration>) {
@@ -454,13 +459,35 @@ const extractExportsFromAST = (ast: babelParser.ParseResult<File>) => {
       if (isVariableDeclaration(declaration) && declaration.kind === 'const') {
         const variableDeclarator = declaration.declarations[0];
         if (isIdentifier(variableDeclarator.id)) {
-          fileExports.push(variableDeclarator.id);
+          fileExports.push({
+             ...variableDeclarator.id,
+            isDefault: false,
+          });
         }
       }
     },
+    ExportDefaultDeclaration(path: NodePath<ExportDefaultDeclaration>) {
+      const declaration = path.node.declaration;
+
+      if (isIdentifier(declaration)) {
+        fileExports.push({
+          ...declaration,
+          isDefault: true,
+        });
+      }
+    },
+    ImportDeclaration(path: NodePath<ImportDeclaration>) {
+      const source = path.node.source.value;
+      const isLibraryImport = !source.startsWith('.');
+
+      fileImports.push({
+        source: source,
+        isLibraryImport: isLibraryImport,
+      });
+    },
   });
 
-  return fileExports;
+  return { fileExports, fileImports };
 };
 
 const filterReferencesUnique = (references: any ,originalPath:string) => {

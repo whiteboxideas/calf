@@ -17,5 +17,6 @@ export type Tree = {
   parentList: string[];
   props: { [key: string]: boolean; };
   mainExports: any[];
+  fileImports: any[];
   error: string;
 };

@@ -123,30 +123,58 @@ export const useSidebarLogic = () => {
                       </div>
                     </>
                   )} */}
-                   { item.mainExports.length > 0 &&
-                  (
-                    <>
-                      <div id={item.id } 
-                        style={{
-                          display: "none",
-                          columnWidth: '112px',
-                          fontSize: '11pt',
-                          color: 'var(--vscode-foreground)',
-                          borderBottom: "2px solid var(--vscode-settings-focusedRowBorder)",
-                          padding: '4px 0px 6px 5px',
-                          wordBreak: 'break-all'
-                        }}
-                      >
-                        Exports:
-                        {item.mainExports.map(
-                          ( {name,start,isDefault}) => (
-                          <div key={name+start} style={{display: 'flex',color:isDefault&&'black' }}>
-                            &#8226;{name}
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  )}
+                  <div id={item.id} style={{ display: 'none', justifyContent: 'space-between' }}>
+                    {item.mainExports.length > 0 && (
+                      <>
+                        <div
+                          
+                          style={{
+                            display: 'block',
+                            columnWidth: '112px',
+                            fontSize: '11pt',
+                            color: 'var(--vscode-foreground)',
+                            borderBottom: '2px solid var(--vscode-settings-focusedRowBorder)',
+                            padding: '4px 0px 6px 5px',
+                            wordBreak: 'break-all',
+                          }}
+                        >
+                          Exports:
+                          {item.mainExports.map(({ name, start, isDefault }) => (
+                            <div key={name + start} style={{ display: 'flex', color: isDefault && 'black' }}>
+                              &#8226;{name}
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
+
+                    {item.fileImports.length > 0 && (
+                      <>
+                        <div 
+                          style={{
+                            display: 'block',
+                            columnWidth: '112px',
+                            fontSize: '11pt',
+                            color: 'var(--vscode-foreground)',
+                            borderBottom: '2px solid var(--vscode-settings-focusedRowBorder)',
+                            padding: '4px 0px 6px 5px',
+                            wordBreak: 'break-all',
+                          }}
+                        >
+                          Imports:
+                          {item.fileImports.map((item) => {
+                            const sourceValue = item.source.value;
+const lastPart = sourceValue.split('/').pop();
+                            return (
+                              <div key={lastPart} style={{ display: 'flex', color: item.isLibraryImport && 'black' }}>
+                                &#8226;{lastPart}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </div>
                 <div style={{justifyContent: 'space-between', display: 'flex', margin: '5px 0px'}}>
                   <div className="nodeToolbar">
                     { item.mainExports.length > 0 && (

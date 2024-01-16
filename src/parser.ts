@@ -63,8 +63,7 @@ export class Parser {
     };
 
     this.tree = root;
-    this.parser(root); 
-    console.log('main root',root) 
+    this.parser(root);  
 
     const document = vscode.window.activeTextEditor.document.uri; 
     const position = new vscode.Position(root.mainExports[0]?.loc?.start?.line-1, root.mainExports[0]?.loc?.start?.column-1); // replace with the actual position
@@ -479,9 +478,9 @@ const extractExportsAndImportsFromAST = (ast: babelParser.ParseResult<File>) => 
     ImportDeclaration(path: NodePath<ImportDeclaration>) {
       const source = path.node.source.value;
       const isLibraryImport = !source.startsWith('.');
-
+console.log('path.node.',path.node);
       fileImports.push({
-        source: source,
+        ...path.node,
         isLibraryImport: isLibraryImport,
       });
     },

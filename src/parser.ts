@@ -39,7 +39,7 @@ export class Parser {
   }
 
   // Public method to generate component tree based on current entryFile
-  public parse(): Tree {
+  public   async parse():  Promise<Tree>  {
     // Create root Tree node
     const root = {
       id: getNonce(),
@@ -54,6 +54,7 @@ export class Parser {
       reactRouter: false,
       reduxConnect: false,
       children: [],
+      parents:null, 
       parentList: [],
       props: {},
       mainExports: [],
@@ -64,10 +65,11 @@ export class Parser {
     this.parser(root); 
     console.log('main root',root) 
 
-    const document = vscode.window.activeTextEditor.document.uri;
-    const position = new vscode.Position(7, 14); // replace with the actual position
+    const document = vscode.window.activeTextEditor.document.uri; 
+    const position = new vscode.Position(root.mainExports[0]?.loc?.start?.line-1, root.mainExports[0]?.loc?.start?.column-1); // replace with the actual position
      
-    getReferencesVS(document, position);
+    let  parents  = await getReferencesVS(document, position) ;
+    this.tree.parents = parents;
     return this.tree;
   }
 
@@ -371,7 +373,8 @@ export class Parser {
         children: [],
         parentList: [parent.filePath].concat(parent.parentList),
         error: '',
-        mainExports: [], // Add the missing mainExports property
+        mainExports: [],
+        parents: [], // Add the missing parents property
       };
     }
 
@@ -429,13 +432,16 @@ export class Parser {
   }
 }
 
-const getReferencesVS = async (uri: vscode.Uri, position: vscode.Position) => {
-  console.log('ref uri', uri.fsPath); // logs the references
-  console.log('ref pos', position); // logs the references
-  
-  const references = await vscode.commands.executeCommand('vscode.executeReferenceProvider', uri, position);
+const getReferencesVS = async (uri: vscode.Uri, position: vscode.Position): Promise<any> => {
+ if(!position||!position.line||  position.line === -1 || position.character === -1){
+  console.log('position',position); 
+  return;
+ } 
+   
+  const references = await vscode.commands.executeCommand(
+    'vscode.executeReferenceProvider',uri, position);
 
-  console.log('vs ref',references); // logs the references
+  return filterReferencesUnique(references,uri.fsPath);
 };
 
 const extractExportsFromAST = (ast: babelParser.ParseResult<File>) => {
@@ -447,7 +453,6 @@ const extractExportsFromAST = (ast: babelParser.ParseResult<File>) => {
 
       if (isVariableDeclaration(declaration) && declaration.kind === 'const') {
         const variableDeclarator = declaration.declarations[0];
-        console.log('variableDeclarator', variableDeclarator);
         if (isIdentifier(variableDeclarator.id)) {
           fileExports.push(variableDeclarator.id);
         }
@@ -455,6 +460,30 @@ const extractExportsFromAST = (ast: babelParser.ParseResult<File>) => {
     },
   });
 
-  console.log('Positions 2: ', fileExports);
   return fileExports;
 };
+
+const filterReferencesUnique = (references: any ,originalPath:string) => {
+  const filteredReferences = references.reduce((acc, curr) => {
+    // Exclude the one with the same fsPath as the input uri.fsPath
+    
+    if (curr.uri.fsPath === originalPath) { 
+      return acc;
+    }
+
+    // If the fsPath is already in the accumulator, update it 
+    const existing = acc.find(ref => { 
+      return ref.uri.fsPath === curr.uri.fsPath});
+   
+    if (existing) {
+        const index = acc.indexOf(existing); 
+        acc[index] = curr; 
+    } else {
+      acc.push(curr); 
+      console.log('acc  ',acc );
+    }
+    return acc;
+  }, []);
+
+  return filteredReferences;
+}

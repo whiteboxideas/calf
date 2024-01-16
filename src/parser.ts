@@ -4,7 +4,11 @@ import * as fs from 'fs';
 import { getNonce } from './getNonce';
 import { Tree } from './types/Tree';
 import { ImportObj } from './types/ImportObj';
-import { File } from '@babel/types';
+import { File ,isVariableDeclaration,isIdentifier,ExportNamedDeclaration}  from '@babel/types';
+import * as vscode from 'vscode';
+import { NodePath, traverse } from '@babel/core';
+
+
 
 export class Parser {
   entryFile: string;
@@ -52,11 +56,18 @@ export class Parser {
       children: [],
       parentList: [],
       props: {},
+      mainExports: [],
       error: '',
     };
 
     this.tree = root;
-    this.parser(root);
+    this.parser(root); 
+    console.log('main root',root) 
+
+    const document = vscode.window.activeTextEditor.document.uri;
+    const position = new vscode.Position(7, 14); // replace with the actual position
+     
+    getReferencesVS(document, position);
     return this.tree;
   }
 
@@ -179,8 +190,8 @@ export class Parser {
     } catch (err) {
       componentTree.error = 'Error while processing this file/node';
       return componentTree;
-    }
-
+    } 
+    componentTree.mainExports =  extractExportsFromAST(ast);;
     // Find imports in the current file, then find child components in the current file
     const imports = this.getImports(ast.program.body);
 
@@ -202,7 +213,7 @@ export class Parser {
     componentTree.children.forEach((child) => this.parser(child));
 
     return componentTree;
-  }
+  } 
 
   // Finds files where import string does not include a file extension
   private getFileName(componentTree: Tree): string | undefined {
@@ -360,6 +371,7 @@ export class Parser {
         children: [],
         parentList: [parent.filePath].concat(parent.parentList),
         error: '',
+        mainExports: [], // Add the missing mainExports property
       };
     }
 
@@ -416,3 +428,33 @@ export class Parser {
     return false;
   }
 }
+
+const getReferencesVS = async (uri: vscode.Uri, position: vscode.Position) => {
+  console.log('ref uri', uri.fsPath); // logs the references
+  console.log('ref pos', position); // logs the references
+  
+  const references = await vscode.commands.executeCommand('vscode.executeReferenceProvider', uri, position);
+
+  console.log('vs ref',references); // logs the references
+};
+
+const extractExportsFromAST = (ast: babelParser.ParseResult<File>) => {
+  let fileExports = [];
+
+  traverse(ast, {
+    ExportNamedDeclaration(path: NodePath<ExportNamedDeclaration>) {
+      const declaration = path.node.declaration;
+
+      if (isVariableDeclaration(declaration) && declaration.kind === 'const') {
+        const variableDeclarator = declaration.declarations[0];
+        console.log('variableDeclarator', variableDeclarator);
+        if (isIdentifier(variableDeclarator.id)) {
+          fileExports.push(variableDeclarator.id);
+        }
+      }
+    },
+  });
+
+  console.log('Positions 2: ', fileExports);
+  return fileExports;
+};

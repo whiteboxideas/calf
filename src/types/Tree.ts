@@ -15,5 +15,6 @@ export type Tree = {
   children: Tree[];
   parentList: string[];
   props: { [key: string]: boolean; };
+  mainExports: any[];
   error: string;
 };

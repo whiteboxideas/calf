@@ -72,7 +72,6 @@ public static init (extContext: vscode.ExtensionContext){
   public   parseAndShowFile(fileName: string) {
     this.parser = new Parser(fileName);
       this.parser.parse().then((res) => { 
-         console.log('parse done '); 
 
     this.updateView();
         });  
@@ -84,7 +83,6 @@ public static init (extContext: vscode.ExtensionContext){
       return;
     }
     const tree = this.parser!.getTree();
-    console.log('tree',tree);
     this._extContext.workspaceState.update('calf', tree);
     this._panel.webview.postMessage({
       type: 'parsed-data',

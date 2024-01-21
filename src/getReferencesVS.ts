@@ -3,7 +3,6 @@ import { filterReferencesUnique } from './filterReferencesUnique';
 
 export const getReferencesVS = async (uri: vscode.Uri, position: vscode.Position): Promise<any> => {
   if (!position || !position.line || position.line === -1 || position.character === -1) {
-    console.log('position', position);
     return;
   }
 

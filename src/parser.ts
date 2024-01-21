@@ -4,11 +4,12 @@ import * as fs from 'fs';
 import { getNonce } from './getNonce';
 import { Tree } from './types/Tree';
 import { ImportObj } from './types/ImportObj';
-import { File ,isVariableDeclaration,isIdentifier,ExportNamedDeclaration,ExportDefaultDeclaration,ImportDeclaration}  from '@babel/types';
+import { File}  from '@babel/types';
 import * as vscode from 'vscode';
-import { NodePath, traverse } from '@babel/core';
-
-
+import { extractExportsAndImportsFromAST,
+   getFileName, getJSXChildren, traverseTree 
+  ,getReferencesVS} from './helper';
+ 
 
 export class Parser {
   entryFile: string;
@@ -104,21 +105,21 @@ export class Parser {
       }
     };
 
-    const callback = (node: Tree): void => {
+    const parserCallback = (node: Tree): void => {
       if (node.filePath === filePath) {
         node.children.forEach((child) => {
-          this.traverseTree(getChildNodes, child);
+           traverseTree(getChildNodes, child);
         });
 
         const newNode = this.parser(node);
 
-        this.traverseTree(matchExpand, newNode);
+        traverseTree(matchExpand, newNode);
 
         children = [];
       }
     };
 
-    this.traverseTree(callback, this.tree);
+     traverseTree(parserCallback, this.tree);
 
     return this.tree!;
   }
@@ -131,29 +132,15 @@ export class Parser {
       }
     };
 
-    this.traverseTree(callback, this.tree);
+       traverseTree(callback, this.tree);
 
     return this.tree!;
   }
 
   // Traverses all nodes of current component tree and applies callback to each node
-  private traverseTree(
-    callback: Function,
-    node: Tree | undefined = this.tree
-  ): void {
-    if (!node) {
-      return;
-    }
-
-    callback(node);
-
-    node.children.forEach((childNode) => {
-      this.traverseTree(callback, childNode);
-    });
-  }
 
   // Recursively builds the React component tree structure starting from root node
-  private parser(componentTree: Tree): Tree | undefined {
+  private parser(componentTree: Tree,maxDepth:any=103): Tree | undefined {
     // If import is a node module, do not parse any deeper
     if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
       componentTree.thirdParty = true;
@@ -167,7 +154,7 @@ export class Parser {
     }
 
     // Check that file has valid fileName/Path, if not found, add error to node and halt
-    const fileName = this.getFileName(componentTree);
+    const fileName =  getFileName(componentTree);
     if (!fileName) {
       componentTree.error = 'File not found.';
       return;
@@ -201,7 +188,7 @@ export class Parser {
 
     // Get any JSX Children of current file:
     if (ast.tokens) {
-      componentTree.children = this.getJSXChildren(
+      componentTree.children =  getJSXChildren(
         ast.tokens,
         imports,
         componentTree
@@ -214,27 +201,13 @@ export class Parser {
     }
 
     // Recursively parse all child components
-    componentTree.children.forEach((child) => this.parser(child));
+    if(maxDepth>0)
+    componentTree.children.forEach((child) => this.parser(child,maxDepth-1));
 
     return componentTree;
   } 
 
-  // Finds files where import string does not include a file extension
-  private getFileName(componentTree: Tree): string | undefined {
-    const ext = path.extname(componentTree.filePath);
-    let fileName: string | undefined = componentTree.fileName;
-
-    if (!ext) {
-      // Try and find file extension that exists in directory:
-      const fileArray = fs.readdirSync(path.dirname(componentTree.filePath));
-      const regEx = new RegExp(`${componentTree.fileName}.(j|t)sx?$`);
-      fileName = fileArray.find((fileStr) => fileStr.match(regEx));
-      fileName ? (componentTree.filePath += path.extname(fileName)) : null;
-    }
-
-    return fileName;
-  }
-
+ 
   // Extracts Imports from current file
   // const Page1 = lazy(() => import('./page1')); -> is parsed as 'ImportDeclaration'
   // import Page2 from './page2'; -> is parsed as 'VariableDeclaration'
@@ -244,7 +217,7 @@ export class Parser {
     );
     // console.log('bodyImports are: ', bodyImports);
     return bodyImports.reduce((accum, curr) => {
-      // Import Declarations:
+       
       if (curr.type === 'ImportDeclaration') {
         curr.specifiers.forEach(
           (i: {
@@ -293,115 +266,9 @@ export class Parser {
     return false;
   }
 
-  // Finds JSX React Components in current file
-  private getJSXChildren(
-    astTokens: any[],
-    importsObj: ImportObj,
-    parentNode: Tree
-  ): Tree[] {
-    let childNodes: { [key: string]: Tree } = {};
-    let props: { [key: string]: boolean } = {};
-    let token: { [key: string]: any };
-
-    for (let i = 0; i < astTokens.length; i++) {
-      // Case for finding JSX tags eg <App .../>
-      if (
-        astTokens[i].type.label === 'jsxTagStart' &&
-        astTokens[i + 1].type.label === 'jsxName' &&
-        importsObj[astTokens[i + 1].value]
-      ) {
-        token = astTokens[i + 1];
-        props = this.getJSXProps(astTokens, i + 2);
-        childNodes = this.getChildNodes(
-          importsObj,
-          token,
-          props,
-          parentNode,
-          childNodes
-        );
-
-        // Case for finding components passed in as props e.g. <Route component={App} />
-      } else if (
-        astTokens[i].type.label === 'jsxName' &&
-        (astTokens[i].value === 'component' ||
-          astTokens[i].value === 'children') &&
-        importsObj[astTokens[i + 3].value]
-      ) {
-        token = astTokens[i + 3];
-        childNodes = this.getChildNodes(
-          importsObj,
-          token,
-          props,
-          parentNode,
-          childNodes
-        );
-      }
-    }
-
-    return Object.values(childNodes);
-  }
-
-  private getChildNodes(
-    imports: ImportObj,
-    astToken: { [key: string]: any },
-    props: { [key: string]: boolean },
-    parent: Tree,
-    children: { [key: string]: Tree }
-  ): { [key: string]: Tree } {
-    if (children[astToken.value]) {
-      children[astToken.value].count += 1;
-      children[astToken.value].props = {
-        ...children[astToken.value].props,
-        ...props,
-      };
-    } else {
-      // Add tree node to childNodes if one does not exist
-      children[astToken.value] = {
-        id: getNonce(),
-        name: imports[astToken.value]['importName'],
-        fileName: path.basename(imports[astToken.value]['importPath']),
-        filePath: path.resolve(
-          path.dirname(parent.filePath),
-          imports[astToken.value]['importPath']
-        ),
-        importPath: imports[astToken.value]['importPath'],
-        expanded: false,
-        depth: parent.depth + 1,
-        thirdParty: false,
-        reactRouter: false,
-        reduxConnect: false,
-        count: 1,
-        props: props,
-        children: [],
-        parentList: [parent.filePath].concat(parent.parentList),
-        error: '',
-        mainExports: [],
-        fileImports: [],
-        parents: [], // Add the missing parents property
-      };
-    }
-
-    return children;
-  }
-
+ 
   // Extracts prop names from a JSX element
-  private getJSXProps(
-    astTokens: { [key: string]: any }[],
-    j: number
-  ): { [key: string]: boolean } {
-    const props: any = {};
-    while (astTokens[j].type.label !== 'jsxTagEnd') {
-      if (
-        astTokens[j].type.label === 'jsxName' &&
-        astTokens[j + 1].value === '='
-      ) {
-        props[astTokens[j].value] = true;
-      }
-      j += 1;
-    }
-    return props;
-  }
-
+ 
   // Checks if current Node is connected to React-Redux Store
   private checkForRedux(astTokens: any[], importsObj: ImportObj): boolean {
     // Check that react-redux is imported in this file (and we have a connect method or otherwise)
@@ -411,7 +278,8 @@ export class Parser {
       if (
         importsObj[key].importPath === 'react-redux' &&
         importsObj[key].importName === 'connect'
-      ) {
+      ) { 
+
         reduxImported = true;
         connectAlias = key;
       }
@@ -435,81 +303,6 @@ export class Parser {
   }
 }
 
-const getReferencesVS = async (uri: vscode.Uri, position: vscode.Position): Promise<any> => {
- if(!position||!position.line||  position.line === -1 || position.character === -1){
-  console.log('position',position); 
-  return;
- } 
-   
-  const references = await vscode.commands.executeCommand(
-    'vscode.executeReferenceProvider',uri, position);
 
-  return filterReferencesUnique(references,uri.fsPath);
-};
 
-const extractExportsAndImportsFromAST = (ast: babelParser.ParseResult<File>) => {
-  let fileExports = [];
-  let fileImports = [];
 
-  traverse(ast, {
-    ExportNamedDeclaration(path: NodePath<ExportNamedDeclaration>) {
-      const declaration = path.node.declaration;
-
-      if (isVariableDeclaration(declaration) && declaration.kind === 'const') {
-        const variableDeclarator = declaration.declarations[0];
-        if (isIdentifier(variableDeclarator.id)) {
-          fileExports.push({
-             ...variableDeclarator.id,
-            isDefault: false,
-          });
-        }
-      }
-    },
-    ExportDefaultDeclaration(path: NodePath<ExportDefaultDeclaration>) {
-      const declaration = path.node.declaration;
-
-      if (isIdentifier(declaration)) {
-        fileExports.push({
-          ...declaration,
-          isDefault: true,
-        });
-      }
-    },
-    ImportDeclaration(path: NodePath<ImportDeclaration>) {
-      const source = path.node.source.value;
-      const isLibraryImport = !source.startsWith('.');
-console.log('path.node.',path.node);
-      fileImports.push({
-        ...path.node,
-        isLibraryImport: isLibraryImport,
-      });
-    },
-  });
-
-  return { fileExports, fileImports };
-};
-
-const filterReferencesUnique = (references: any ,originalPath:string) => {
-  const filteredReferences = references.reduce((acc, curr) => {
-    // Exclude the one with the same fsPath as the input uri.fsPath
-    
-    if (curr.uri.fsPath === originalPath) { 
-      return acc;
-    }
-
-    // If the fsPath is already in the accumulator, update it 
-    const existing = acc.find(ref => { 
-      return ref.uri.fsPath === curr.uri.fsPath});
-   
-    if (existing) {
-        const index = acc.indexOf(existing); 
-        acc[index] = curr; 
-    } else {
-      acc.push(curr); 
-      console.log('acc  ',acc );
-    }
-    return acc;
-  }, []);
-
-  return filteredReferences;
-}

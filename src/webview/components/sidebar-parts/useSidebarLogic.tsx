@@ -49,7 +49,6 @@ export const useSidebarLogic = () => {
     const propsObj: any = {};
   
     const handleProps = (id) => {
-      console.log('id', id)
       const propsDiv = document.getElementById(id);
       const styles = window.getComputedStyle(propsDiv);
       const display = styles.getPropertyValue('display');

@@ -87,7 +87,7 @@ export default class TreePanel {
 
   private parseAndShowFile(fileName: string) {
     this.parser = new Parser(fileName);
-       this.parser.parse().then((res) => {  console.log(res); }); 
+       this.parser.parse().then((res) => { console.log('panel.ts-90: parser parse result ',res); }); 
     this.updateView();
   }
 

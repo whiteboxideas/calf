@@ -4,7 +4,7 @@ import { getChildNodes } from "./getChildNodes";
 import { getFileName } from "./getFileName"; 
 import { getJSXChildren } from "./getJSXChildren";
 import { getJSXProps  } from "./getJSXProps";
-import { getReferencesVS } from './getReferencesVS';
+import { getReferencesViaVscode } from './getReferencesViaVscode';
 import { traverseTree } from "./traverseTree";  
 import {checkForRedux} from './checkForRedux';  
 import { findVarDecImports } from './findVarDecImports';
@@ -21,6 +21,6 @@ export {
     getFileName, 
     getJSXChildren, 
     getJSXProps, 
-    getReferencesVS, 
+    getReferencesViaVscode as getReferencesVS, 
     traverseTree
 }

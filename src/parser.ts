@@ -1,8 +1,8 @@
 import * as path from 'path';
 import { getNonce } from './getNonce';
 import { Tree } from './types/Tree';
-import { traverseTree,getReferencesVS,getDocumentAndPosition} from './helper';
-import { pleaseParse } from './pleaseParse';
+import { traverseTree,getReferencesVS,getDocumentAndPosition as getDocumentAndPositionOfFirstExport} from './helper';
+import { pleaseParse, pleaseParse2 } from './pleaseParse';
 
 
 export class Parser {
@@ -56,13 +56,12 @@ export class Parser {
       fileImports: [],
       error: '',
     };
-    const {document,position}=getDocumentAndPosition(root);
-
-
     this.tree = root;
-     pleaseParse(root);  
+    pleaseParse(root);
+    const {document,position}=getDocumentAndPositionOfFirstExport(root);
     this.tree.parents = await getReferencesVS(document, position);
-
+    
+    // pleaseParse2(root);
     return this.tree;
   }
 
@@ -103,7 +102,7 @@ export class Parser {
         node.children.forEach((child) => {
            traverseTree(getChildNodes, child);
         });
-
+console.log('parser.ts-106: ',);
         const newNode =  pleaseParse(node);
 
         traverseTree(matchExpand, newNode);

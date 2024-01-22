@@ -73,9 +73,7 @@ export function pleaseParse(componentTree: Tree, maxDepth: any = 100): Tree | un
 
 export const pleaseParseParents = (componentTree: Tree): Tree | undefined => {
    componentTree.parentsParsed.forEach(parent => {
-    console.log('pleaseParse.ts-76: before',parent);
       pleaseParseOneLevelDeep(parent ,JSON.parse(JSON.stringify({...componentTree,children:[],parentsParsed:[]})))
-    console.log('pleaseParse.ts-78: after',parent );
   })
   return componentTree;
      
@@ -124,9 +122,7 @@ export const pleaseParseOneLevelDeep = (componentTree: Tree,nuturedRoot: Tree): 
   componentTree.fileImports = fileImports;
   // Find imports in the current file, then find child components in the current file
   const imports = getImports(ast.program.body);
-console.log('pleaseParse.ts-127: ',componentTree);
   componentTree.children.push(nuturedRoot);
-  console.log('pleaseParse.ts-129: componentTree',componentTree);
   if (ast.tokens) {
     componentTree.parentsAst =  [];
   }

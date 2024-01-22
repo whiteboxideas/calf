@@ -45,9 +45,7 @@ export class Parser {
     this.tree.parents = tempParents;
     this.tree.parentsParsed =tempParents.map((parent:any)=>{
       return generateRoot(parent.uri.fsPath)});
-      console.log('parser.ts-48: before',root);
      pleaseParseParents(root);
-     console.log('parser.ts-50: after',root);
     return this.tree;
   }
 
@@ -90,7 +88,6 @@ export class Parser {
         node.children.forEach((child) => {
            traverseTree(getChildNodes, child);
         });
-console.log('parser.ts-106: ',);
         const newNode =  pleaseParse(node);
 
         traverseTree(matchExpand, newNode);

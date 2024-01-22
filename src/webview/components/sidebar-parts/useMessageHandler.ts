@@ -1,15 +1,20 @@
 // useMessageHandler.ts
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import {    postMessage } from "./vscodeUtils";
  
-export const useMessageHandler = (setRootFile: Function, setSettings: Function, setTreeData: any) => {
+export const useMessageHandler = ( ) => {
+    const [treeData, setTreeData]: any = useState();
+    const [settings, setSettings]: [{ [key: string]: boolean }, Function] = useState();
+    const [rootFile, setRootFile]: [string | undefined, Function] = useState();
+  
     useEffect(() => {
         const handleMessage = (event) => {
             const message = event.data;
             switch (message.type) {
                 // Listener to receive the tree data, update navbar and tree view
                 case 'parsed-data': {
+                    console.log('useMessageHandler.ts-17: ',message.value);  
                     let data = [];
                     data.push(message.value);
                     setRootFile(message.value.fileName);
@@ -45,5 +50,7 @@ export const useMessageHandler = (setRootFile: Function, setSettings: Function, 
             window.removeEventListener('message', handleMessage);
         };
     }, []);
+
+    return { treeData, settings, rootFile };
 };
   

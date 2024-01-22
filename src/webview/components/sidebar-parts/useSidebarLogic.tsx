@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import { useEffect, useState } from "react";
+import { useEffect  } from "react";
 import { Node, Edge } from "reactflow";
 import Badge from '@mui/material/Badge';
 import TextSnippetIcon from '@mui/icons-material/TextSnippet';
@@ -14,11 +14,65 @@ import { useMessageHandler } from "./useMessageHandler";
 
 
 export const useSidebarLogic = () => {
-    const [rootFile, setRootFile]: [string | undefined, Function] = useState();
     const initialNodes: Node[] = []; 
     const initialEdges: Edge[] = [];
-  
+    let viewData: any;
     const nodeIDs =[]
+    let id = 0;
+
+    const {treeData,settings,rootFile} = useMessageHandler( );
+  
+     // Separate useEffect that gets triggered when the treeData and settings state variables get updated
+     useEffect(() => {
+      if (treeData && settings) {
+        // Invoke parser to parse based on user's settings
+        parseViewTree();
+      }
+    }, [treeData, settings]);
+  
+     // Edits and returns component tree based on users settings
+     const parseViewTree = (): void => {
+      console.log('useSidebarLogic.tsx-35: treeData',treeData);
+      // Deep copy of the treeData passed in
+      const treeParsed = JSON.parse(JSON.stringify(treeData[0]));
+  
+      // Helper function for the recursive parsing
+      const traverse = (node: any): void => {
+        let validChildren = [];
+  
+        // Logic to parse the nodes based on the users settings
+        for (let i = 0; i < node.children.length; i++) {
+          if (
+            node.children[i].thirdParty &&
+            settings.thirdParty &&
+            !node.children[i].reactRouter
+          ) {
+            validChildren.push(node.children[i]);
+          } else if (node.children[i].reactRouter && settings.reactRouter) {
+            validChildren.push(node.children[i]);
+          } else if (
+            !node.children[i].thirdParty &&
+            !node.children[i].reactRouter
+          ) {
+            validChildren.push(node.children[i]);
+          }
+        }
+  
+        // Update children with only valid nodes, and recurse through each node
+        node.children = validChildren;
+        node.children.forEach((child: any) => {
+          traverse(child);
+        });
+      };
+  
+      // Invoking the helper function
+      traverse(treeParsed);
+      // Update the vewData state
+      viewData = ([treeParsed])
+      getNodes(viewData);
+      makeEdges(viewData);
+    };
+
     const handleAllProps = (displayValue) => {
       for (let i = 0; i < nodeIDs.length; i++) {
         const id = nodeIDs[i];
@@ -26,27 +80,8 @@ export const useSidebarLogic = () => {
         propsDiv.style.display = displayValue
       }
     }
-    // state variables for the incomimg treeData, parsed viewData, user's settings, and the root file name
-    const [treeData, setTreeData]: any = useState();
-    const [settings, setSettings]: [{ [key: string]: boolean }, Function] = useState();
-    
-  
-    let viewData: any;
-    useMessageHandler(setRootFile, setSettings, setTreeData);
-  
    
-    // Separate useEffect that gets triggered when the treeData and settings state variables get updated
-    useEffect(() => {
-      if (treeData && settings) {
-        // Invoke parser to parse based on user's settings
-        parseViewTree();
-      }
-    }, [treeData, settings]);
-  
-    // initialize iniialialNodes for ReactFlow setup
-  
-    let id = 0;
-    const propsObj: any = {};
+    
   
     const handleProps = (id) => {
       const propsDiv = document.getElementById(id);
@@ -55,9 +90,7 @@ export const useSidebarLogic = () => {
       if (display === 'none') propsDiv.style.display = 'block';
       else propsDiv.style.display = 'none'
     }
-   
-   
-  
+    
     const getNodes = (tree: any) => {
       if (!tree) {
         return;
@@ -237,47 +270,7 @@ const lastPart = sourceValue.split('/').pop();
       });
     };
   
-    // Edits and returns component tree based on users settings
-    const parseViewTree = (): void => {
-      // Deep copy of the treeData passed in
-      const treeParsed = JSON.parse(JSON.stringify(treeData[0]));
-  
-      // Helper function for the recursive parsing
-      const traverse = (node: any): void => {
-        let validChildren = [];
-  
-        // Logic to parse the nodes based on the users settings
-        for (let i = 0; i < node.children.length; i++) {
-          if (
-            node.children[i].thirdParty &&
-            settings.thirdParty &&
-            !node.children[i].reactRouter
-          ) {
-            validChildren.push(node.children[i]);
-          } else if (node.children[i].reactRouter && settings.reactRouter) {
-            validChildren.push(node.children[i]);
-          } else if (
-            !node.children[i].thirdParty &&
-            !node.children[i].reactRouter
-          ) {
-            validChildren.push(node.children[i]);
-          }
-        }
-  
-        // Update children with only valid nodes, and recurse through each node
-        node.children = validChildren;
-        node.children.forEach((child: any) => {
-          traverse(child);
-        });
-      };
-  
-      // Invoking the helper function
-      traverse(treeParsed);
-      // Update the vewData state
-      viewData = ([treeParsed])
-      getNodes(viewData);
-      makeEdges(viewData);
-    };
+   
   
     return {rootFile,initialNodes, initialEdges, nodeIDs,handleAllProps}
   }

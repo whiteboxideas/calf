@@ -49,12 +49,15 @@ export class Parser {
       reactRouter: false,
       reduxConnect: false,
       children: [],
-      parents:null, 
       parentList: [],
       props: {},
+      error: '',
+
+      parents:null, 
       mainExports: [],
       fileImports: [],
-      error: '',
+      parentsAst:[],
+      parentsParsed:[],
     };
     this.tree = root;
     pleaseParse(root);

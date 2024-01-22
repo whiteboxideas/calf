@@ -46,10 +46,11 @@ export function pleaseParse(componentTree: Tree, maxDepth: any = 100): Tree | un
     componentTree.error = 'Error while processing this file/node';
     return componentTree;
   }
+  
   const { fileExports, fileImports } = extractExportsAndImportsFromAST(ast);
   componentTree.mainExports = fileExports;
-  componentTree.fileImports = fileImports;
-  // Find imports in the current file, then find child components in the current file
+  componentTree.fileImports = fileImports; 
+
   const imports = getImports(ast.program.body);
 
   // Get any JSX Children of current file:
@@ -61,13 +62,12 @@ export function pleaseParse(componentTree: Tree, maxDepth: any = 100): Tree | un
     );
   }
 
-  // Check if current node is connected to the Redux store
   if (ast.tokens) {
     componentTree.reduxConnect = checkForRedux(ast.tokens, imports);
   }
-  // Recursively parse all child components
   if (maxDepth > 0)
     componentTree.children.forEach((child) => pleaseParse(child, maxDepth - 1));
+
   return componentTree;
 }
 

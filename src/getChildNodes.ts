@@ -37,9 +37,12 @@ export const getChildNodes = (
       children: [],
       parentList: [parent.filePath].concat(parent.parentList),
       error: '',
+
+      parents:[], 
       mainExports: [],
       fileImports: [],
-      parents: [], // Add the missing parents property
+      parentsAst:[],
+      parentsParsed:[],
     };
   }
 

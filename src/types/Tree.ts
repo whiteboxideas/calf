@@ -13,10 +13,13 @@ export type Tree = {
   reactRouter: boolean;
   reduxConnect: boolean;
   children: Tree[];
-  parents:any,
   parentList: string[];
   props: { [key: string]: boolean; };
+  error: string;
+
   mainExports: any[];
   fileImports: any[];
-  error: string;
+  parents:any,
+  parentsAst:any[],
+  parentsParsed:any[],
 };

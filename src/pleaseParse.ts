@@ -71,9 +71,17 @@ export function pleaseParse(componentTree: Tree, maxDepth: any = 100): Tree | un
   return componentTree;
 }
 
+export const pleaseParseParents = (componentTree: Tree): Tree | undefined => {
+   componentTree.parentsParsed.forEach(parent => {
+    console.log('pleaseParse.ts-76: before',parent);
+      pleaseParseOneLevelDeep(parent ,JSON.parse(JSON.stringify({...componentTree,children:[],parentsParsed:[]})))
+    console.log('pleaseParse.ts-78: after',parent );
+  })
+  return componentTree;
+     
+};
 
-
-export function pleaseParse2(componentTree: Tree, maxDepth: any = 100): Tree | undefined {
+export const pleaseParseOneLevelDeep = (componentTree: Tree,nuturedRoot: Tree): Tree | undefined => {
   // If import is a node module, do not parse any deeper
   if (!['\\', '/', '.'].includes(componentTree.importPath[0])) {
     componentTree.thirdParty = true;
@@ -116,9 +124,11 @@ export function pleaseParse2(componentTree: Tree, maxDepth: any = 100): Tree | u
   componentTree.fileImports = fileImports;
   // Find imports in the current file, then find child components in the current file
   const imports = getImports(ast.program.body);
-
+console.log('pleaseParse.ts-127: ',componentTree);
+  componentTree.children.push(nuturedRoot);
+  console.log('pleaseParse.ts-129: componentTree',componentTree);
   if (ast.tokens) {
-    componentTree.parents =  [];
+    componentTree.parentsAst =  [];
   }
 
   // Check if current node is connected to the Redux store
@@ -126,4 +136,4 @@ export function pleaseParse2(componentTree: Tree, maxDepth: any = 100): Tree | u
     componentTree.reduxConnect = checkForRedux(ast.tokens, imports);
   }
   return componentTree;
-}
+};

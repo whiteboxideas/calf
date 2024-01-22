@@ -7,6 +7,5 @@ export const getReferencesViaVscode = async (uri: vscode.Uri, position: vscode.P
   }
   const refererencesForSymbol = await vscode.commands.executeCommand(
     'vscode.executeReferenceProvider', uri, position);
-
   return filterReferencesUnique(refererencesForSymbol, uri.fsPath);
 };

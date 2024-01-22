@@ -2,7 +2,8 @@ import * as path from 'path';
 import { getNonce } from './getNonce';
 import { Tree } from './types/Tree';
 import { traverseTree,getReferencesVS,getDocumentAndPosition as getDocumentAndPositionOfFirstExport} from './helper';
-import { pleaseParse, pleaseParse2 } from './pleaseParse';
+import { pleaseParse, pleaseParseParents } from './pleaseParse';
+
 
 
 export class Parser {
@@ -36,40 +37,24 @@ export class Parser {
   // Public method to generate component tree based on current entryFile
   public   async parse():  Promise<Tree>  {
     // Create root Tree node
-    const root = {
-      id: getNonce(),
-      name: path.basename(this.entryFile).replace(/\.(t|j)sx?$/, ''),
-      fileName: path.basename(this.entryFile),
-      filePath: this.entryFile,
-      importPath: '/', // this.entryFile here breaks windows file path on root e.g. C:\\ is detected as third party
-      expanded: false,
-      depth: 0,
-      count: 1,
-      thirdParty: false,
-      reactRouter: false,
-      reduxConnect: false,
-      children: [],
-      parentList: [],
-      props: {},
-      error: '',
-
-      parents:null, 
-      mainExports: [],
-      fileImports: [],
-      parentsAst:[],
-      parentsParsed:[],
-    };
+    const root =  generateRoot(this.entryFile);
     this.tree = root;
     pleaseParse(root);
     const {document,position}=getDocumentAndPositionOfFirstExport(root);
-    this.tree.parents = await getReferencesVS(document, position);
-    
-    // pleaseParse2(root);
+    const tempParents= await getReferencesVS(document, position);
+    this.tree.parents = tempParents;
+    this.tree.parentsParsed =tempParents.map((parent:any)=>{
+      return generateRoot(parent.uri.fsPath)});
+      console.log('parser.ts-48: before',root);
+     pleaseParseParents(root);
+     console.log('parser.ts-50: after',root);
     return this.tree;
   }
 
 
   
+  
+
   public getTree(): Tree {
     return this.tree!;
   }
@@ -123,3 +108,30 @@ console.log('parser.ts-106: ',);
 }
 
 
+
+
+const generateRoot = (entryFile:string) => {
+  return {
+    id: getNonce(),
+    name: path.basename( entryFile).replace(/\.(t|j)sx?$/, ''),
+    fileName: path.basename(entryFile),
+    filePath: entryFile,
+    importPath: '/', // this.entryFile here breaks windows file path on root e.g. C:\\ is detected as third party
+    expanded: false,
+    depth: 0,
+    count: 1,
+    thirdParty: false,
+    reactRouter: false,
+    reduxConnect: false,
+    children: [],
+    parentList: [],
+    props: {},
+    error: '',
+
+    parents: null,
+    mainExports: [],
+    fileImports: [],
+    parentsAst: [],
+    parentsParsed: [],
+  };
+};
